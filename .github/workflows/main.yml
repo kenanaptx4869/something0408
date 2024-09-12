@@ -50,8 +50,10 @@ jobs:
         password: ${{ secrets.REMOTE_PASS }}
         port: ${{ secrets.REMOTE_PORT }}
         script: |
+          git config pull.rebase false # 这种策略会创建一个新的合并提交，将本地和远程的更改合并在一起。
           cd /www/wwwroot/8.152.0.253/something0408  # 替换为您的项目在服务器上的位置
           git pull origin gh-pages # 拉取最新代码
+       
         
 
     # - name: copy dist file with scp
