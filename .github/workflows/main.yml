@@ -1,45 +1,46 @@
-# .github/workflows/deploy.yml
-name: Build and Deploy
+name: kenan actions
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
+
+# Environment variables available to all jobs and steps in this workflow
+
+permissions:
+  contents: read
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
+    - name: node install
+      uses: actions/setup-node@v4.0.3
       with:
-        node-version: '14'  # 你可以根据需要更改 Node.js 版本
+           # Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.
+        node-version: "20.X" # optional
 
-    - name: Install dependencies
-      run: npm install
+ 
+    - name: INSTALL NODE MODULES
+      run: npm i
 
-    - name: Build the project
+
+    - name: Build
       run: npm run build
 
-    - name: Archive dist folder
-      run: tar -czf dist.tar.gz -C dist .
 
-    - name: Install SSH client
-      run: sudo apt-get install -y openssh-client
-
-    - name: Copy files via SCP
-      env:
-        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        REMOTE_PORT: 22
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        REMOTE_PASS: ${{ secrets.REMOTE_PASS }}
-      run: |
-        apt-get update && apt-get install -y sshpass
-        sshpass -p "$REMOTE_PASS" scp -o StrictHostKeyChecking=no -P $REMOTE_PORT dist.tar.gz $REMOTE_USER@$REMOTE_HOST:/path/to/remote/directory
+    - name: copy dist file with scp
+      uses: appleboy/scp-action@v0.0.1
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        password: ${{ secrets.REMOTE_PASS }}
+        port: 22
+        source: 'dist/'
+        script: |
+          cd /www/wwwroot/8.152.0.253/something0408  # 替换为您的项目在服务器上的位置
+          git pull origin main # 拉取最新代码
