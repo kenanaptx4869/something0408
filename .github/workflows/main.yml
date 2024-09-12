@@ -33,6 +33,15 @@ jobs:
       run: npm run build
 
 
+    # - name: Deploy to GitHub Pages
+    #   uses: JamesIves/github-pages-deploy-action@v4
+    #   if: ${{ github.ref == 'refs/heads/main' }}
+    #   with:
+    #     branch: gh-pages//这个是存储你项目打包后的文件分支
+    #     folder: dist
+    #     # token: ${{ secrets.TOKEN }}
+        
+
     - name: copy dist file with scp
       uses: appleboy/scp-action@v0.0.1
       with:
@@ -41,6 +50,4 @@ jobs:
         password: ${{ secrets.REMOTE_PASS }}
         port: 22
         source: 'dist/'
-        script: |
-          cd /www/wwwroot/8.152.0.253/something0408  # 替换为您的项目在服务器上的位置
-          git pull origin main # 拉取最新代码
+        target: '/www/wwwroot/8.152.0.253/something0408/'
